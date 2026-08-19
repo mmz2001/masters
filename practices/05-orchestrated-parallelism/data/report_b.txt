@@ -1,0 +1,2 @@
+Support ticket volume dropped 8% after the new onboarding flow shipped.
+Average response time held steady at just under four hours.

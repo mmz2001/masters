@@ -1,0 +1,35 @@
+name: Scheduled eval (time-based loop)
+
+# Demonstrates the "time-based" loop shape from practices/07-loop-engineering:
+# nobody has to remember to run analyze.py — the trigger itself is handed off.
+
+on:
+  schedule:
+    - cron: '17 9 * * 1'  # Mondays, off the top of the hour on purpose
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  run-eval:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run analyze.py and record the top cluster
+        run: |
+          cd practices/04-evals-over-intuition
+          OUTPUT=$(python3 analyze.py)
+          echo "$OUTPUT"
+          TOP_LINE=$(echo "$OUTPUT" | tail -n 1)
+          cd ../..
+          echo "- $(date -u +%Y-%m-%d) — $TOP_LINE" >> loop-log.md
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add loop-log.md
+          git commit -m "Scheduled eval run: $(date -u +%Y-%m-%d)" || echo "Nothing to commit"
+          git push

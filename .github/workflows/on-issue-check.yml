@@ -1,0 +1,32 @@
+name: On-issue check (proactive loop)
+
+# Demonstrates the "proactive" loop shape from practices/07-loop-engineering:
+# no one schedules this and no one types a prompt to run it — the event
+# (an issue opened with the practice-check label) is the trigger itself.
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  check:
+    if: contains(github.event.issue.labels.*.name, 'practice-check')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run the verification exercise's test suite
+        run: |
+          cd practices/01-verification
+          python3 -m unittest test_calc.py -v > /tmp/result.txt 2>&1 || true
+          cat /tmp/result.txt
+
+      - name: Comment the result back on the issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BODY=$(printf 'Proactive check ran automatically — nobody scheduled or typed this.\n\n`practices/01-verification` test result:\n\n```\n%s\n```' "$(cat /tmp/result.txt)")
+          gh issue comment "${{ github.event.issue.number }}" --body "$BODY"

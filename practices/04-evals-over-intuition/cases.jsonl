@@ -1,0 +1,10 @@
+{"id": 1, "description": "Login form rejects valid email with '+' in it", "root_cause": "regex-too-strict"}
+{"id": 2, "description": "Signup form rejects valid email 'a+tag@example.com'", "root_cause": "regex-too-strict"}
+{"id": 3, "description": "Password reset link expires 1 minute early", "root_cause": "timezone-offset"}
+{"id": 4, "description": "Scheduled report shows yesterday's date after midnight UTC", "root_cause": "timezone-offset"}
+{"id": 5, "description": "Export button does nothing on second click", "root_cause": "missing-debounce"}
+{"id": 6, "description": "Save button double-submits on slow connections", "root_cause": "missing-debounce"}
+{"id": 7, "description": "Filter box rejects email 'first.last+work@example.com'", "root_cause": "regex-too-strict"}
+{"id": 8, "description": "Invite link says expired 1 minute before it should", "root_cause": "timezone-offset"}
+{"id": 9, "description": "Bulk-delete confirms twice when clicked twice quickly", "root_cause": "missing-debounce"}
+{"id": 10, "description": "Contact form rejects a legitimate '+'-tagged email address", "root_cause": "regex-too-strict"}
