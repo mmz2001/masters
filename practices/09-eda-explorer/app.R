@@ -5,6 +5,18 @@ source("eda.R")
 DEMO_CHOICES <- c("iris" = "iris", "mtcars" = "mtcars", "diamonds (capped, large)" = "diamonds")
 
 ui <- fluidPage(
+  tags$script(HTML("
+    $(document).on('shiny:sessioninitialized', function() {
+      var gl = false;
+      try {
+        var canvas = document.createElement('canvas');
+        gl = !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+      } catch (e) {
+        gl = false;
+      }
+      Shiny.setInputValue('webgl_available', gl);
+    });
+  ")),
   titlePanel("EDA Explorer — interactive Plotly plots on demo or your own data"),
   sidebarLayout(
     sidebarPanel(
@@ -96,11 +108,24 @@ server <- function(input, output, session) {
     d <- df()
     req(input$x_var, input$y_var, input$z_var)
     color_vals <- if (is.null(input$color_var) || input$color_var == "(none)") NULL else d[[input$color_var]]
-    plot_ly(x = d[[input$x_var]], y = d[[input$y_var]], z = d[[input$z_var]], color = color_vals,
-            type = "scatter3d", mode = "markers") %>%
-      layout(scene = list(xaxis = list(title = input$x_var),
-                           yaxis = list(title = input$y_var),
-                           zaxis = list(title = input$z_var)))
+
+    # plotly's scatter3d trace always requires WebGL, with no built-in
+    # fallback — on a shared host, WebGL can be unavailable for reasons
+    # outside this app's control (IT policy, an embedded IDE viewer without
+    # a software rasterizer). Degrade to a 2D bubble chart (Z as marker
+    # size) instead of letting the browser show a raw WebGL error.
+    if (isFALSE(input$webgl_available)) {
+      plot_ly(x = d[[input$x_var]], y = d[[input$y_var]], size = d[[input$z_var]], color = color_vals,
+              type = "scatter", mode = "markers") %>%
+        layout(title = "WebGL unavailable in this browser — showing Z as bubble size instead of a 3rd axis",
+               xaxis = list(title = input$x_var), yaxis = list(title = input$y_var))
+    } else {
+      plot_ly(x = d[[input$x_var]], y = d[[input$y_var]], z = d[[input$z_var]], color = color_vals,
+              type = "scatter3d", mode = "markers") %>%
+        layout(scene = list(xaxis = list(title = input$x_var),
+                             yaxis = list(title = input$y_var),
+                             zaxis = list(title = input$z_var)))
+    }
   })
 
   output$mds_plot <- renderPlotly({

@@ -72,10 +72,46 @@ which just confirmed a good check still worked — this one found that the
 caught a real regression in this tab if the deliberate-break step had
 never been run.
 
+## Attempt 4 — a real user hit a real environment gap (post-ship)
+
+After shipping, a user opened the "3D Scatter" tab on this host and got a
+raw browser error: WebGL disabled/unavailable. `plotly`'s `scatter3d`
+trace always requires WebGL — there's no built-in non-WebGL fallback in
+plotly.js — and on a shared HPC/corporate host, WebGL can be missing for
+reasons this app has zero control over (IT policy, an embedded IDE viewer
+webview without a software rasterizer, an old browser). This wasn't a bug
+the test suite could have caught: the headless Chrome the suite runs
+under (via `chromote`) does have working WebGL, so `test-app.R` never
+exercised the no-WebGL path at all — a green suite proved the happy path
+worked, not that the environment it assumed (WebGL present) always holds.
+
+Fixed by adding a small client-side detection script (`tags$script` in the
+`ui`, tries `canvas.getContext('webgl')` and reports the result via
+`Shiny.setInputValue('webgl_available', ...)`), and branching
+`output$scatter3d` on it: real interactive 3D when WebGL is available,
+otherwise a 2D bubble chart (Z as marker size, with a visible note) so the
+tab degrades instead of showing a raw browser error. Added one assertion
+that `input$webgl_available` actually resolves to a boolean after load —
+that's the part a future regression in the detection script itself would
+break, even though the suite's Chrome will always take the "WebGL
+available" branch and can never directly exercise the fallback branch.
+
+**Lesson**: a headless test suite inherits the assumptions of whatever
+environment it runs in. It can't tell you your code handles an environment
+your test runner never sees — that gap only shows up when a *different*
+environment (a real user's real browser) hits it. Handling that required
+noticing the report, reasoning about *why* it could happen on a shared
+host, and choosing a fix that degrades gracefully rather than assuming
+away the problem — the "loop" here started from a human-reported failure,
+not from a failing assertion.
+
 ## Which loop shape is this?
 
 Goal-based, same as practice 08 (see
 [practice 07](../07-loop-engineering)): the stop condition was "every
 assertion passes, and I've confirmed the suite would actually fail on a
 real bug" — not a turn count or a fixed number of attempts. The second
-half of that condition is the one that actually mattered here.
+half of that condition is the one that actually mattered here. Attempt 4
+is a reminder that goal-based loops only cover what the goal actually
+checks — "all tests pass" said nothing about the one environment gap that
+turned out to matter to a real user.

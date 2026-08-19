@@ -21,6 +21,12 @@ test_that("app loads, renders all 4 tabs with no error, switches demo dataset, u
   expect_true(no_shiny_error())
   expect_true(has_plotly_widget("scatter2d"))
 
+  # 1b. WebGL detection script reported a real boolean, not left unset —
+  # a regression here would silently make the 3D tab assume WebGL is always
+  # available instead of actually checking.
+  webgl_flag <- app$get_value(input = "webgl_available")
+  expect_true(is.logical(webgl_flag) && !is.na(webgl_flag))
+
   # 2. Each tab renders its plotly widget with no error
   tab_to_output <- c(
     "2D Scatter" = "scatter2d",

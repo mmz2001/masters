@@ -17,7 +17,11 @@ vacuously green.
   to carry a column through for coloring without losing row alignment).
 - `app.R` — a Shiny app: pick a data source in the sidebar, then explore it
   across 4 tabs, each an interactive `plotly` chart: 2D scatter, correlation
-  heatmap, 3D scatter, and MDS.
+  heatmap, 3D scatter, and MDS. The 3D tab detects whether the browser
+  supports WebGL (which `scatter3d` always requires) and falls back to a 2D
+  bubble chart (Z as marker size) if not, instead of showing a raw browser
+  error — see `LOOP.md`'s "Attempt 4" for why this was needed on a shared
+  host.
 - `tests/testthat/test-eda.R` — unit tests on the logic alone (fast, no
   browser).
 - `tests/testthat/test-app.R` — a `shinytest2` test that drives the actual
