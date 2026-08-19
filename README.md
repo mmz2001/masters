@@ -22,11 +22,18 @@ generated automatically in the background.
 | 5 | Orchestrated parallelism | [`practices/05-orchestrated-parallelism`](practices/05-orchestrated-parallelism) | Many isolated workers plus a synthesis step beat one worker doing everything. |
 | 6 | Judgment moves up the stack | [`practices/06-judgment-shaping-the-build`](practices/06-judgment-shaping-the-build) | Deciding what belongs in the spec is the job, not a distraction from it. |
 | 7 | Loop engineering | [`practices/07-loop-engineering`](practices/07-loop-engineering) | Four shapes — turn-based, goal-based, time-based, proactive — each handing off more of the loop from human to system. |
+| 8 | Verification + loop engineering, combined | [`practices/08-adam-scanner-loop`](practices/08-adam-scanner-loop) | A small Shiny app, built and trusted through a real headless test loop — no human manually tests the UI. |
 
 ## Requirements
 
-Python 3 (standard library only — nothing here needs `pip install`).
-Everything was written and tested against Python 3.9.
+Practices 1-7: Python 3, standard library only — nothing there needs
+`pip install`. Everything was written and tested against Python 3.9.
+
+Practice 8 is R + Shiny (Python's Streamlit wasn't installable in the
+environment this was built in — no reachable package index — while R's
+`shiny`/`shinytest2`/`testthat` were already available with working
+headless-Chrome support via `chromote`). See its own README for exact
+package requirements.
 
 ## Try it
 
