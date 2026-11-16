@@ -12,3 +12,4 @@
 - 2026-10-26 — Fix first: 'regex-too-strict' (4/10 cases) — not case #10 just because it's the most recent.
 - 2026-11-02 — Fix first: 'regex-too-strict' (4/10 cases) — not case #10 just because it's the most recent.
 - 2026-11-09 — Fix first: 'regex-too-strict' (4/10 cases) — not case #10 just because it's the most recent.
+- 2026-11-16 — Fix first: 'regex-too-strict' (4/10 cases) — not case #10 just because it's the most recent.
